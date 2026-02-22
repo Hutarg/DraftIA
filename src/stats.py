@@ -46,13 +46,8 @@ def getStats(continent: str, puuid: str):
     counts = [0 for i in range(len(championsIndices) - 1)]
 
     for matchId in matchesIds[:50]:
-        time.sleep(1)
+        time.sleep(10)
         match = getMatch(continent, matchId)
-
-        print(match)
-
-        if match["info"]["gameMode"] != 'CLASSIC':
-            continue
 
         for participant in match["info"]["participants"]:
             if participant["puuid"] == puuid:
@@ -74,9 +69,7 @@ def getStats(continent: str, puuid: str):
 
     for i in range(len(stats)):
         count = counts[i] if counts[i] > 0 else 1
-        stats[i] = [stats[i][0]/count, stats[i][1]/count, stats[i][2]/count]
-
-    print(stats)
+        stats[i] = [stats[i][0]/count, stats[i][1]/len(stats), stats[i][2]/count]
 
     return stats
 
