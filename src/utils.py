@@ -100,7 +100,7 @@ championsIndices = {
     "Malphite"             : 79,
     "Malzahar"             : 80,
     "Maokai"               : 81,
-    "Master Yi"            : 82,
+    "MasterYi"            : 82,
     "Mel"                  : 83,
     "Milio"                : 84,
     "MissFortune"          : 85,

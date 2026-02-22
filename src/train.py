@@ -43,7 +43,9 @@ for i in range(100):
 
         targetIndex = random.randint(0, len(winningParticipants) - 1)
         target = winningParticipants[targetIndex]
-        championOutputs.append(championsIndices[riotChampionsNames[target["championId"]]])
+
+        championOutputs.append([1 if i == championsIndices[riotChampionsNames[target["championId"]]]
+                                else 0 for i in range(172)])
 
         if target["teamPosition"] == "TOP":
             role = 1
@@ -62,6 +64,8 @@ for i in range(100):
 
         bans = []
         for ban in match["info"]["teams"][0]["bans"]:
+            bans.append(championsIndices[riotChampionsNames[ban["championId"]]])
+        for ban in match["info"]["teams"][1]["bans"]:
             bans.append(championsIndices[riotChampionsNames[ban["championId"]]])
 
         bansInputs.append(bans)
@@ -89,11 +93,12 @@ for i in range(100):
         statsInputs.append(getStats("europe", currentPlayerPuuid))
 
         print(p)
-        p = p + 1
 
     currentPlayerPuuid = target["puuid"]
+    break
 
 print(roleInputs, bansInputs, picksInputs, statsInputs, championOutputs)
 
-model.train(np.array(roleInputs), np.array(bansInputs), np.array(picksInputs), np.array(statsInputs), np.array(championOutputs), len(roleInputs), 10)
+model.train(np.array(roleInputs), np.array(bansInputs), np.array(picksInputs), np.array(statsInputs),
+            np.array(championOutputs), len(roleInputs), 100)
 model.save("C:/Users/Dralgon/OneDrive/Documents/IAlol/IAlol/models/v1.keras")

@@ -18,7 +18,7 @@ import tensorflow as tf
 
 class Model:
     def __init__(self, championsCount, ):
-        roleInput = Input(shape=(5,), name="roleInput")
+        roleInput = Input(shape=(1,), name="roleInput")
         bansInput = Input(shape=(10,), name="bansInput")
         picksInput = Input(shape=(9,), name="picksInput")
         statsInput = Input(shape=(championsCount, 3), name="playerStatsInput")
@@ -42,17 +42,17 @@ class Model:
 
     def train(self, roleInputs, bansInputs, picksInputs, statsInputs, championOutputs, batchSize, epochs):
         self.model.fit(
-            x={"role_input": roleInputs, "bans_input": bansInputs, "picks_input": picksInputs,
-               "player_stats_input": statsInputs},
-            y={"champion_output": championOutputs},
+            x={"roleInput": roleInputs, "bansInput": bansInputs, "picksInput": picksInputs,
+               "playerStatsInput": statsInputs},
+            y=championOutputs,
             batch_size=batchSize,
             epochs=epochs,
             validation_split=0.1,
             shuffle=True)
 
     def predict(self, roleInputs, bansInputs, picksInputs, statsInputs):
-        self.model.predict({"role_input": roleInputs, "bans_input": bansInputs, "picks_input": picksInputs,
-                            "player_stats_input": statsInputs})
+        self.model.predict({"roleInput": roleInputs, "bansInput": bansInputs, "picksInput": picksInputs,
+                            "playerStatsInput": statsInputs})
 
     def save(self, filePath):
         self.model.save(filePath)

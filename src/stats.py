@@ -2,39 +2,74 @@ import requests
 import time
 from utils import *
 from dotenv import load_dotenv
+from pathlib import Path
 import os
 
-load_dotenv()
+env_path = Path(__file__).resolve().parent.parent / "riot" / ".env"
+load_dotenv(env_path)
 
 API_KEY = os.getenv("RIOT_API_KEY")
 headers = {"X-Riot-Token": API_KEY}
 
+apiRequestsCount = 0
+firstRequestTime = 0
+
+
+def wait():
+    global apiRequestsCount, firstRequestTime
+    time.sleep(0.1)
+
+    current_time = time.time()
+    dt = current_time - firstRequestTime
+
+    if dt >= 120:
+        firstRequestTime = current_time
+        apiRequestsCount = 0
+        elapsed = 0
+
+    if apiRequestsCount >= 100:
+        sleep_time = 120 - dt
+        if sleep_time > 0:
+            print(f"Rate limit reached. Sleeping for {sleep_time:.2f} seconds.")
+            time.sleep(sleep_time)
+
+        firstRequestTime = time.time()
+        apiRequestsCount = 0
+
+    apiRequestsCount += 1
+    print(f"API calls: {apiRequestsCount}")
+
 
 def getAccount(continent: str, name: str, tag: str):
+    wait()
     url = f"https://{continent}.api.riotgames.com/riot/account/v1/accounts/by-riot-id/{name}/{tag}"
     response = requests.get(url, headers=headers)
     return response.json()
 
 
 def getSummoner(region: str, puuid: str):
+    wait()
     url = f"https://{region}.api.riotgames.com/lol/summoner/v4/summoners/by-puuid/{puuid}"
     response = requests.get(url, headers=headers)
     return response.json()
 
 
 def getChampionsStats(region: str, puuid: str):
+    wait()
     url = f"https://{region}.api.riotgames.com/lol/champion-mastery/v4/champion-masteries/by-puuid/{puuid}"
     response = requests.get(url, headers=headers)
     return response.json()
 
 
 def getMatchesIds(continent: str, puuid: str):
+    wait()
     url = f"https://{continent}.api.riotgames.com/lol/match/v5/matches/by-puuid/{puuid}/ids"
     response = requests.get(url, headers=headers)
     return response.json()
 
 
 def getMatch(continent: str, matchId: str):
+    wait()
     url = f"https://{continent}.api.riotgames.com/lol/match/v5/matches/{matchId}"
     response = requests.get(url, headers=headers)
     return response.json()
@@ -50,7 +85,6 @@ def getStats(continent: str, puuid: str):
     counts = [0 for i in range(len(championsIndices) - 1)]
 
     for matchId in matchesIds[:50]:
-        time.sleep(1)
         match = getMatch(continent, matchId)
 
         for participant in match["info"]["participants"]:
@@ -72,8 +106,10 @@ def getStats(continent: str, puuid: str):
     kda = kda/50
 
     for i in range(len(stats)):
-        count = counts[i] if counts[i] > 0 else 1
-        stats[i] = [stats[i][0]/count, stats[i][1]/len(stats), stats[i][2]/count]
+        if counts[i] == 0:
+            stats[i] = [winrate, stats[i][1]/len(stats), kda]
+        else:
+            stats[i] = [stats[i][0]/counts[i], stats[i][1]/len(stats), stats[i][2]/counts[i]]
 
     return stats
 
