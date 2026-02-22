@@ -12,7 +12,7 @@ API_KEY = os.getenv("RIOT_API_KEY")
 headers = {"X-Riot-Token": API_KEY}
 
 apiRequestsCount = 0
-firstRequestTime = 0
+firstRequestTime = time.time()
 
 
 def wait():
@@ -28,7 +28,7 @@ def wait():
         elapsed = 0
 
     if apiRequestsCount >= 100:
-        sleep_time = 120 - dt
+        sleep_time = 140 - dt
         if sleep_time > 0:
             print(f"Rate limit reached. Sleeping for {sleep_time:.2f} seconds.")
             time.sleep(sleep_time)
@@ -44,6 +44,15 @@ def getAccount(continent: str, name: str, tag: str):
     wait()
     url = f"https://{continent}.api.riotgames.com/riot/account/v1/accounts/by-riot-id/{name}/{tag}"
     response = requests.get(url, headers=headers)
+
+    if response.status_code == 429:
+        time.sleep(60)
+        print("Rate limit exceeded. Sleeping for 1 minutes")
+        return getAccount(continent, name, tag)
+    elif response.status_code != 200:
+        print("API Error:", response.status_code, response.text)
+        return None
+
     return response.json()
 
 
@@ -51,6 +60,15 @@ def getSummoner(region: str, puuid: str):
     wait()
     url = f"https://{region}.api.riotgames.com/lol/summoner/v4/summoners/by-puuid/{puuid}"
     response = requests.get(url, headers=headers)
+
+    if response.status_code == 429:
+        time.sleep(60)
+        print("Rate limit exceeded. Sleeping for 1 minutes")
+        return getSummoner(region, puuid)
+    elif response.status_code != 200:
+        print("API Error:", response.status_code, response.text)
+        return None
+
     return response.json()
 
 
@@ -58,6 +76,15 @@ def getChampionsStats(region: str, puuid: str):
     wait()
     url = f"https://{region}.api.riotgames.com/lol/champion-mastery/v4/champion-masteries/by-puuid/{puuid}"
     response = requests.get(url, headers=headers)
+
+    if response.status_code == 429:
+        time.sleep(60)
+        print("Rate limit exceeded. Sleeping for 1 minutes")
+        return getChampionsStats(region, puuid)
+    elif response.status_code != 200:
+        print("API Error:", response.status_code, response.text)
+        return None
+
     return response.json()
 
 
@@ -65,6 +92,15 @@ def getMatchesIds(continent: str, puuid: str):
     wait()
     url = f"https://{continent}.api.riotgames.com/lol/match/v5/matches/by-puuid/{puuid}/ids"
     response = requests.get(url, headers=headers)
+
+    if response.status_code == 429:
+        time.sleep(60)
+        print("Rate limit exceeded. Sleeping for 1 minutes")
+        return getMatchesIds(continent, puuid)
+    elif response.status_code != 200:
+        print("API Error:", response.status_code, response.text)
+        return None
+
     return response.json()
 
 
@@ -72,6 +108,15 @@ def getMatch(continent: str, matchId: str):
     wait()
     url = f"https://{continent}.api.riotgames.com/lol/match/v5/matches/{matchId}"
     response = requests.get(url, headers=headers)
+
+    if response.status_code == 429:
+        time.sleep(60)
+        print("Rate limit exceeded. Sleeping for 1 minutes")
+        return getMatch(continent, matchId)
+    elif response.status_code != 200:
+        print("API Error:", response.status_code, response.text)
+        return None
+
     return response.json()
 
 
@@ -87,16 +132,20 @@ def getStats(continent: str, puuid: str):
     for matchId in matchesIds[:50]:
         match = getMatch(continent, matchId)
 
+        if match["info"]["gameMode"] != 'CLASSIC':
+            continue
+
         for participant in match["info"]["participants"]:
             if participant["puuid"] == puuid:
                 team = match["info"]["teams"][0] if participant["teamId"] == match["info"]["teams"][0]["teamId"] \
                     else match["info"]["teams"][1]
 
-                wr = wr + 1 if team["win"] else 0
+                winrate += + 1 if team["win"] else 0
                 kda = kda + (participant["kills"] + participant["assists"])/(participant["deaths"] + 1)
 
                 championIndex = championsIndices[riotChampionsNames[participant["championId"]]]-1
-                stats[championIndex] = [stats[championIndex][0] + 1 if team["win"] else 0,
+                win = 1 if team["win"] else 0
+                stats[championIndex] = [stats[championIndex][0] + win,
                                         stats[championIndex][1] + 1,
                                         stats[championIndex][2] + (participant["kills"] + participant["assists"])/(participant["deaths"] + 1)]
 

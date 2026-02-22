@@ -17,9 +17,9 @@ picksInputs = []
 statsInputs = []
 championOutputs = []
 
-p = 0
+t = time.time()
 
-for i in range(100):
+while time.time() - t < 3600:
     for id in getMatchesIds("europe", currentPlayerPuuid):
         match = getMatch("europe", id)
 
@@ -92,12 +92,7 @@ for i in range(100):
 
         statsInputs.append(getStats("europe", currentPlayerPuuid))
 
-        print(p)
-
     currentPlayerPuuid = target["puuid"]
-    break
-
-print(roleInputs, bansInputs, picksInputs, statsInputs, championOutputs)
 
 model.train(np.array(roleInputs), np.array(bansInputs), np.array(picksInputs), np.array(statsInputs),
             np.array(championOutputs), len(roleInputs), 100)

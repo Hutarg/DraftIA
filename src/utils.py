@@ -17,6 +17,7 @@ for champ_name, champ_data in data.items():
     champ_id = int(champ_data["key"])
     riotChampionsNames[champ_id] = champ_name
 
+
 championsIndices = {
     "Null"                 : 0,
     "Aatrox"               : 1,
@@ -175,7 +176,7 @@ championsIndices = {
     "Vladimir"             : 154,
     "Volibear"             : 155,
     "Warwick"              : 156,
-    "Wukong"               : 157,
+    "MonkeyKing"           : 157, #wukong
     "Xayah"                : 158,
     "Xerath"               : 159,
     "XinZhao"              : 160,
