@@ -17,9 +17,10 @@ picksInputs = []
 statsInputs = []
 championOutputs = []
 
+p = 0
+
 for i in range(100):
     for id in getMatchesIds("europe", currentPlayerPuuid):
-        time.sleep(1)
         match = getMatch("europe", id)
 
         if match["info"]["gameMode"] != 'CLASSIC':
@@ -86,6 +87,9 @@ for i in range(100):
         picksInputs.append(losingPicks + winningPicks)
 
         statsInputs.append(getStats("europe", currentPlayerPuuid))
+
+        print(p)
+        p = p + 1
 
     currentPlayerPuuid = target["puuid"]
 

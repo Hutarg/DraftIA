@@ -1,8 +1,12 @@
 import requests
 import time
 from utils import *
+from dotenv import load_dotenv
+import os
 
-API_KEY = "RGAPI-d4b466b8-e4a3-435c-98f9-a5091c049d9b"
+load_dotenv()
+
+API_KEY = os.getenv("RIOT_API_KEY")
 headers = {"X-Riot-Token": API_KEY}
 
 
@@ -46,7 +50,7 @@ def getStats(continent: str, puuid: str):
     counts = [0 for i in range(len(championsIndices) - 1)]
 
     for matchId in matchesIds[:50]:
-        time.sleep(10)
+        time.sleep(1)
         match = getMatch(continent, matchId)
 
         for participant in match["info"]["participants"]:
