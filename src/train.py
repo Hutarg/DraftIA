@@ -5,7 +5,8 @@ from model import Model
 from stats import *
 from utils import *
 
-model = Model(len(championsIndices) - 1)
+model = Model()
+model.save(f"../models/v0.h5")  # test de sauvegarde
 
 currentPlayerPuuid = getAccount("europe", "Hutarg", "EUW")["puuid"]
 
@@ -15,7 +16,7 @@ picksInputs = []
 statsInputs = []
 championOutputs = []
 
-version = 0
+version = 1
 
 while True:
     t = time.time()
@@ -103,5 +104,5 @@ while True:
 
     model.train(np.array(roleInputs), np.array(bansInputs), np.array(picksInputs), np.array(statsInputs),
                 np.array(championOutputs), len(roleInputs), 20)
-    model.save(f"../models/v{version}.keras")
+    model.save(f"../models/v{version}.h5")
     version += 1

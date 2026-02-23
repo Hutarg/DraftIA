@@ -1,6 +1,6 @@
 import requests
 import time
-from utils import *
+from src.utils import *
 from dotenv import load_dotenv
 from pathlib import Path
 import os
